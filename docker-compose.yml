@@ -1,0 +1,61 @@
+services:
+  nginx:
+    build: 
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    image: docker.io/lcloss/laracast-docker-nginx:1.0
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/src:/var/www/public_html
+    depends_on:
+      - mysql
+      - php
+
+  mysql:
+    image: mysql:8.4
+    ports:
+      - "3316:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: secret
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql
+
+  php:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    image: docker.io/lcloss/laracast-docker-php:1.0
+    volumes:
+      - ./docker/src:/var/www/public_html
+
+  composer:
+    build:
+      context: ./docker/composer
+      dockerfile: Dockerfile
+    image: docker.io/lcloss/laracast-docker-composer:1.0
+    volumes:
+      - ./docker/src:/var/www/public_html
+    working_dir: /var/www/public_html
+
+  npm:
+    image: node:current-alpine
+    volumes:
+      - ./docker/src:/var/www/public_html
+    working_dir: /var/www/public_html
+    entrypoint: ["npm"]
+
+  artisan:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    image: docker.io/lcloss/laracast-docker-php:1.0
+    volumes:
+      - ./docker/src:/var/www/public_html
+    working_dir: /var/www/public_html
+    depends_on:
+      - mysql
+    entrypoint: ["php", "/var/www/public_html/artisan"]

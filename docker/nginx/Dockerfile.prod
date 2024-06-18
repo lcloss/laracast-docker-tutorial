@@ -1,0 +1,15 @@
+FROM nginx:stable-alpine
+
+ENV NGINXUSER=www-data
+ENV NGINXGROUP=www-data
+
+RUN mkdir -p /var/www/public_html/public
+
+ADD ./default.prod.conf /etc/nginx/conf.d/default.conf
+ADD ./cert/vmi1945554.bus-serv.com.pem /etc/nginx/cert/vmi1945554.bus-serv.com.pem
+ADD ./cert/vmi1945554.bus-serv.com-key.pem /etc/nginx/cert/vmi1945554.bus-serv.com-key.pem
+
+RUN sed -i "s/user www-data/user ${NGINXUSER}/g" /etc/nginx/conf.d/default.conf
+
+# RUN adduser -g ${NGINXGROUP} -s /bin/sh -D ${NGINXUSER}
+

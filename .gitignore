@@ -1,0 +1,6 @@
+cert
+certbot
+docker/nginx/cert
+docker/mysql/data
+docker/src/public/.well-known
+letsencrypt

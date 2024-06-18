@@ -1,0 +1,36 @@
+services:
+  nginx:
+    build:
+      context: docker/nginx
+      dockerfile: Dockerfile.prod
+    image: docker.io/lcloss/laracast-docker-nginx:1.0
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/www/:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/letsencrypt/:ro
+    depends_on:
+      - mysql
+      - php
+      - assets
+
+  php:
+    build:
+      context: docker/php
+      dockerfile: Dockerfile.prod
+    image: docker.io/lcloss/laracast-docker-php:1.0
+
+  assets:
+    image: node:current-alpine
+    volumes:
+      - ./docker/src:/var/www/public_html
+    working_dir: /var/www/public_html
+    command: ["/bin/sh", "-c", "npm install && npm run build"]
+
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
